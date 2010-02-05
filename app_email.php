@@ -53,15 +53,10 @@ class AppEmailComponent extends EmailComponent {
          
         foreach ($keys as $key) {
             if (!empty($params[$config][$key])) {
-                $this->$key = $params[$config][$key];
+                $this->{$key} = $params[$config][$key];
             } else if (!empty($params['default'][$key])) {
-                $this->$key = $params['default'][$key];
+                $this->{$key} = $params['default'][$key];
             }
-        }
-        
-        // デバッグオンリー
-        if (Configure::read('debug') > 0 && defined('ADMIN_EMAIL')) {
-            $this->additionalParams = '-f ' . ADMIN_EMAIL;
         }
     }
 

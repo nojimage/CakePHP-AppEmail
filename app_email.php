@@ -77,9 +77,9 @@ class AppEmailComponent extends EmailComponent {
      * @return array Wrapped message
      * @access private
      */
-    function __wrap($message) {
+    function _wrap($message) {
         $encoding = strtolower(Configure::read('App.encoding'));
-        $message = $this->__strip($message, true);
+        $message = $this->_strip($message, true);
         $message = str_replace(array("\r\n","\r"), "\n", $message);
         $lines = explode("\n", $message);
         $formatted = array();
@@ -90,7 +90,7 @@ class AppEmailComponent extends EmailComponent {
         $wordwrap_not_foot = '（\[{｛〔〈《「『【〘〖‘“«';
 
         if ($this->_lineLength !== null) {
-            trigger_error('_lineLength cannot be accessed please use lineLength', E_USER_WARNING);
+            trigger_error(__('_lineLength cannot be accessed please use lineLength', true), E_USER_WARNING);
             $this->lineLength = $this->_lineLength;
         }
 

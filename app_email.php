@@ -20,6 +20,7 @@
 App::import('Core', 'Multibyte');
 App::import('Component', 'Email');
 class AppEmailComponent extends EmailComponent {
+    var $params;
     /**
      * Startup component
      *
@@ -32,8 +33,9 @@ class AppEmailComponent extends EmailComponent {
 
         mb_language('Japanese');
 
-         
         // 設定読み出し
+        Configure::load('email');
+        $this->params = Configure::read('Email');
         $this->load($this->Controller->name);
 
     }
@@ -46,16 +48,13 @@ class AppEmailComponent extends EmailComponent {
      */
     function load($config = 'default') {
 
-        Configure::load('email');
-        $params = Configure::read('Email');
-
         $keys = array('to', 'cc', 'bcc', 'from', 'replayTo', 'subject', 'lineLength', 'xMailer', 'delivery', 'sendAs', 'smtpOptions', 'layout', 'template', '_debug');
          
         foreach ($keys as $key) {
-            if (!empty($params[$config][$key])) {
-                $this->{$key} = $params[$config][$key];
-            } else if (!empty($params['default'][$key])) {
-                $this->{$key} = $params['default'][$key];
+            if (!empty($this->params[$config][$key])) {
+                $this->{$key} = $this->params[$config][$key];
+            } else if (!empty($this->params['default'][$key])) {
+                $this->{$key} = $this->params['default'][$key];
             }
         }
     }
@@ -63,10 +62,15 @@ class AppEmailComponent extends EmailComponent {
     /**
      * (non-PHPdoc)
      * @see cake/libs/controller/components/EmailComponent#reset()
+     * @param $config
+     * @return unknown_type
      */
-    function reset() {
+    function reset($config = '') {
         parent::reset();
-        $this->load($this->Controller->name);
+        if (empty($config)) {
+            $config = $this->Controller->name;
+        }
+        $this->load($config);
     }
 
     /**

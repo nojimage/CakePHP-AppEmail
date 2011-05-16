@@ -14,8 +14,7 @@ h2. EmailComponentからの改良点
 
 h2. 使い方
 
-EmailComponent 日本語拡張 @ php-tips
-http://php-tips.com/php/cakephp-php/2010/02/emailcomponent-%E6%97%A5%E6%9C%AC%E8%AA%9E%E6%8B%A1%E5%BC%B5
+"EmailComponent 日本語拡張 @ php-tips":http://php-tips.com/php/cakephp-php/2010/02/emailcomponent-%E6%97%A5%E6%9C%AC%E8%AA%9E%E6%8B%A1%E5%BC%B5
 （注: CakePHP 1.2版での記事ですが、設定方法等は同一です。）
 
 h2. LISENCE
@@ -32,5 +31,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 h2. THANKS!!
 
-mon_sat: CakePHP 1.3への対応 https://gist.github.com/365550
-ZiSTA: CakePHPで日本語メールを想定したテストケースを書くとテストに失敗する http://blog.zista.jp/docs/id/0000000126
+mon_sat: "CakePHP 1.3への対応":https://gist.github.com/365550
+ZiSTA: "CakePHPで日本語メールを想定したテストケースを書くとテストに失敗する":http://blog.zista.jp/docs/id/0000000126

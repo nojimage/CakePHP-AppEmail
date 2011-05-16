@@ -1,9 +1,10 @@
 <?php
+
 /**
  *
  * AppEmailComponent (for Japanese)
  *
- * Copyright 2010, nojimage (http://php-tips.com/)
+ * Copyright 2011, nojimage (http://php-tips.com/)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -12,15 +13,21 @@
  * @package     app
  * @subpackage  app.controller.components
  * @author    nojimage <nojimage at gmail.com>
- * @copyright 2010 nojimage
+ * @copyright 2011 nojimage
  * @license   http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link    　http://php-tips.com/
  *
+ * Thank you:
+ *   mon_sat https://gist.github.com/365550
+ *   ZiSTA   http://blog.zista.jp/docs/id/0000000126
  */
 App::import('Core', 'Multibyte');
 App::import('Component', 'Email');
+
 class AppEmailComponent extends EmailComponent {
+
     var $params;
+
     /**
      * Startup component
      *
@@ -37,7 +44,6 @@ class AppEmailComponent extends EmailComponent {
         Configure::load('email');
         $this->params = Configure::read('Email');
         $this->load($this->Controller->name);
-
     }
 
     /**
@@ -49,7 +55,7 @@ class AppEmailComponent extends EmailComponent {
     function load($config = 'default') {
 
         $keys = array('to', 'cc', 'bcc', 'from', 'replayTo', 'subject', 'lineLength', 'xMailer', 'delivery', 'sendAs', 'smtpOptions', 'layout', 'template', '_debug');
-         
+
         foreach ($keys as $key) {
             if (!empty($this->params[$config][$key])) {
                 $this->{$key} = $this->params[$config][$key];

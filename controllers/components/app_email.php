@@ -180,4 +180,24 @@ class AppEmailComponent extends EmailComponent {
 
         return $formatted;
     }
+
+    /**
+     * Encode the specified string using the current charset
+     *
+     * @param string $subject String to encode
+     * @return string Encoded string
+     * @access private
+     * @see http://blog.zista.jp/docs/id/0000000126
+     */
+    function _encode($subject) {
+        $subject = $this->_strip($subject);
+
+        $nl = "\r\n";
+        if ($this->delivery == 'mail') {
+            $nl = '';
+        }
+        $return = mb_encode_mimeheader($subject, $this->charset, 'B', $nl);
+        return $return;
+    }
+
 }

@@ -78,29 +78,36 @@ class AppEmailComponent extends EmailComponent {
      * 日本語対応
      *
      * @param string $message Message to wrap
+     * @param integer $lineLength Max length of line
      * @return array Wrapped message
      * @access private
      */
-    function _wrap($message) {
+    function _wrap($message, $lineLength = null) {
         $encoding = strtolower(Configure::read('App.encoding'));
         $message = $this->_strip($message, true);
-        $message = str_replace(array("\r\n","\r"), "\n", $message);
+        $message = str_replace(array("\r\n", "\r"), "\n", $message);
         $lines = explode("\n", $message);
         $formatted = array();
 
         // 行頭禁則文字
-        $wordwrap_not_head = '、。．）«\]}｝〕〉》」』】〙〗〟»ヽヾ';
+        $wordwrap_not_head = '，）］｝、〕〉》」』】〙〗〟’”｠»'
+                . 'ヽヾーァィゥェォッャュョヮヵヶぁぃぅぇぉっゃゅょゎゕゖㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿ々〻'
+                . '‐–〜？！‼⁇⁈⁉' . '・：；' . '。．';
         // 行末禁則文字
-        $wordwrap_not_foot = '（\[{｛〔〈《「『【〘〖‘“«';
+        $wordwrap_not_foot = '（［｛〔〈《「『【〘〖〝‘“｟«';
 
         if ($this->_lineLength !== null) {
             trigger_error(__('_lineLength cannot be accessed please use lineLength', true), E_USER_WARNING);
             $this->lineLength = $this->_lineLength;
         }
 
+        if (!$lineLength) {
+            $lineLength = $this->lineLength;
+        }
+
         foreach ($lines as $line) {
 
-            if(substr($line, 0, 1) == '.') {
+            if (substr($line, 0, 1) === '.') {
                 $line = '.' . $line;
             }
 
@@ -109,38 +116,60 @@ class AppEmailComponent extends EmailComponent {
                 $line = mb_convert_encoding($line, 'UTF-8', $encoding);
             }
 
-            if (preg_match('!https?://|ftp://!', $line)) {
+            if (preg_match('!(?:https?|ftp)://!', $line)) {
                 // httpを含む行は折り返しを行わない
                 $formatted[] = $line;
                 continue;
             }
 
-            // $this->lineLengthで折り返す
-            $tmp_line = '';
-            $parts = array();
+            if (preg_match('/\A[\x20-\x7E]+\z/u', $line)) {
+                // 英字のみの行
+                $parts = parent::_wrap($line, $lineLength);
+                array_pop($parts);
+                $formatted = array_merge($formatted, $parts);
+                continue;
+            }
 
-            while (mb_strwidth($tmp_line . $line, 'UTF-8') > $this->lineLength ) {
-                // 1字切り出し
-                $chr  = mb_substr($line, 0, 1, 'UTF-8');
-                $line = mb_substr($line, 1, mb_strlen($line), 'UTF-8');
-                $tmp_line .= $chr;
+            // $lineLengthで折り返す
+            $chr = $tmp_line = '';
+            $matches = $parts = array();
 
-                if (mb_strwidth($tmp_line, 'UTF-8') >= $this->lineLength) {
-                    $next_chr = mb_substr($line, 0, 1, 'UTF-8');
-                    if (mb_strpos($wordwrap_not_foot, $chr, 0, 'UTF-8') !== false
-                    || (strlen($next_chr) > 0 && mb_strpos($wordwrap_not_head, $next_chr, 0, 'UTF-8') !== false)) {
-                        // 行末禁則文字に切り出し文字が該当する場合 or 行頭禁則文字に次の文字が該当する場合
-                        continue;
+            while (mb_strwidth($tmp_line . $line, 'UTF-8') > $lineLength) {
+                if (preg_match('/^[\x20-\x7E]+/iu', $line, $matches)) {
+                    // 英字の処理
+                    $line = mb_substr($line, mb_strlen($matches[0]), mb_strlen($line), 'UTF-8');
+                    if (mb_strwidth($tmp_line . $matches[0], 'UTF-8') >= $lineLength) {
+                        $parts[] = trim($tmp_line);
+                        $tmp_line = '';
                     }
-                    $parts[] = $tmp_line;
-                    $tmp_line = '';
+                    $tmp_line .= $matches[0];
+                    if (mb_strwidth($tmp_line, 'UTF-8') >= $lineLength) {
+                        $parts = array_merge($parts, explode("\n", wordwrap($tmp_line, $lineLength, "\n", true)));
+                        $tmp_line = '';
+                    }
+                } else {
+                    // 1字切り出し
+                    $chr = mb_substr($line, 0, 1, 'UTF-8');
+                    $line = mb_substr($line, 1, mb_strlen($line), 'UTF-8');
+                    $tmp_line .= $chr;
+
+                    if (mb_strwidth($tmp_line, 'UTF-8') >= $lineLength) {
+                        $next_chr = mb_substr($line, 0, 1, 'UTF-8');
+                        if ((strlen($chr) > 0 && mb_strpos($wordwrap_not_foot, $chr, 0, 'UTF-8') !== false)
+                                || (strlen($next_chr) > 0 && mb_strpos($wordwrap_not_head, $next_chr, 0, 'UTF-8') !== false)) {
+                            // 行末禁則文字に切り出し文字が該当する場合 or 行頭禁則文字に次の文字が該当する場合
+                            continue;
+                        }
+                        $parts[] = trim($tmp_line);
+                        $tmp_line = '';
+                    }
                 }
             }
 
-            $parts[] = $tmp_line . $line;
-
+            if (!empty($line)) {
+                $parts[] = trim($tmp_line . $line);
+            }
             $formatted = array_merge($formatted, $parts);
-
         }
         $formatted[] = '';
 

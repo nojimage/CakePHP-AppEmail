@@ -36,7 +36,7 @@ class AppEmailComponent extends EmailComponent {
      */
     function startup(&$controller) {
 
-        $this->Controller =& $controller;
+        $this->Controller = & $controller;
 
         mb_language('Japanese');
 
@@ -89,7 +89,7 @@ class AppEmailComponent extends EmailComponent {
      * @access private
      */
     function _wrap($message, $lineLength = null) {
-        $encoding = strtolower(Configure::read('App.encoding'));
+        $encoding = strtoupper(Configure::read('App.encoding'));
         $message = $this->_strip($message, true);
         $message = str_replace(array("\r\n", "\r"), "\n", $message);
         $lines = explode("\n", $message);

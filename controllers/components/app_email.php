@@ -122,8 +122,8 @@ class AppEmailComponent extends EmailComponent {
                 $line = mb_convert_encoding($line, 'UTF-8', $encoding);
             }
 
-            if (preg_match('!(?:https?|ftp)://!', $line)) {
-                // httpを含む行は折り返しを行わない
+            if (!strlen($line) || preg_match('!(?:https?|ftp)://!', $line)) {
+                // 空行またはhttpを含む行は折り返しを行わない
                 $formatted[] = $line;
                 continue;
             }
